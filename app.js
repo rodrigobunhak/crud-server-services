@@ -18,6 +18,10 @@ fs.readFile("db.json", "utf-8", (err, data) => {
   }
 })
 
+app.get("/", (request, response) => {
+  response.send("It's running....")
+})
+
 app.post("/users", (request, response) => {
   const { 
     fullName,
