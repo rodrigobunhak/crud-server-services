@@ -1,13 +1,22 @@
 const express = require('express');
 const cors = require('cors')
 const { randomUUID } = require('crypto')
+const fs = require('fs')
 
 const app = express();
 
 app.use(express.json())
 app.use(cors());
 
-const users = []
+let users = []
+
+fs.readFile("db.json", "utf-8", (err, data) => {
+  if(err) {
+    console.log(err)
+  } else {
+    users = JSON.parse(data)
+  }
+})
 
 app.post("/users", (request, response) => {
   const { 
@@ -36,6 +45,8 @@ app.post("/users", (request, response) => {
   }
 
   users.push(user)
+
+  writeDataIntoDatabase();
 
   return response.json({ message: 'user created successfuly' })
 })
@@ -80,6 +91,8 @@ app.put("/users/:id", (request, response) => {
     avatarURL
   }
 
+  writeDataIntoDatabase();
+
   return response.json({ message: 'user updated successfuly' })
 })
 
@@ -88,7 +101,19 @@ app.delete("/users/:id", (request, response) => {
   const userIndex = users.findIndex(user => user.id === id)
   users.splice(userIndex, 1)
 
-  return response.json({ message: 'usuario deletado com sucesso' })
+  writeDataIntoDatabase();
+
+  return response.json({ message: 'User deleted successfuly' })
 })
+
+function writeDataIntoDatabase() {
+  fs.writeFile("db.json", JSON.stringify(users), (err) => {
+    if(err) {
+      console.log(err);
+    } else {
+      console.log("data writed into the database")
+    }
+  })
+}
 
 app.listen(5001, () => console.log('Server running on port 5001'))
